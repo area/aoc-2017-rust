@@ -6,11 +6,11 @@ fn main() {
 }
 
 fn solve_captcha(captcha: &[u8], offset: usize){
-    let mut count: u32 = 0;
-    let mut n = 0;
+    let mut count: usize = 0;
+    let mut n: usize = 0;
     while n < captcha.len(){
         if captcha[n]==captcha[(n+offset)%captcha.len()]{
-            count+=(captcha[n]-48) as u32; // We're dealing with ascii, so 0->9 is 48->57
+            count+=(captcha[n]-48) as usize; // We're dealing with ascii, so 0->9 is 48->57
         }
         n+=1;
     }
