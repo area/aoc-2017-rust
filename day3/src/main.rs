@@ -6,14 +6,14 @@ fn main() {
     println!("Number of steps to origin from slot {}: {}", slot, get_steps(slot));
     let mut idx = 1;
     loop {
-        if (slot > get_stored_value_in_slot(idx, false)){
+        if slot > get_stored_value_in_slot(idx){
             idx+=1;
             continue
         } else {
             break;
         }
     }
-    println!("First slot with value greater than {} is {} with value {}", slot, idx, get_stored_value_in_slot(idx, false));
+    println!("First slot with value greater than {} is {} with value {}", slot, idx, get_stored_value_in_slot(idx));
 }
 
 fn get_steps(slot: usize) -> usize{
@@ -48,7 +48,7 @@ fn get_midpoints(ring: usize) -> Vec<usize> {
 
 fn get_same_ring_adjacent_indicies(index: usize) -> Vec<usize> {
     let mut adjacent = Vec::new();
-    if (index==1){
+    if index==1{
         return adjacent
     }
     //First, which ring is this in?
@@ -56,7 +56,7 @@ fn get_same_ring_adjacent_indicies(index: usize) -> Vec<usize> {
     // Now, which slots on that ring is it adjacent to?
     // We're always adjacent to the slot one less than us
     // But if it's on the previous ring, don't return it here
-    if (ring==get_ring(index-1)){
+    if ring==get_ring(index-1){
         adjacent.push(index-1);
     }
     // We're adjacent to the slot two less than us if we just turned a corner
@@ -65,7 +65,7 @@ fn get_same_ring_adjacent_indicies(index: usize) -> Vec<usize> {
     }
 
     // If we're the penultimate or last slot on our ring, we're adjacent to the first slot
-    if ((ring*2+1).pow(2)-index <=1){
+    if (ring*2+1).pow(2)-index <=1{
         adjacent.push(((ring-1)*2+1).pow(2)+1);
     }
 
@@ -74,10 +74,10 @@ fn get_same_ring_adjacent_indicies(index: usize) -> Vec<usize> {
 
 fn get_lower_ring_adjacent_indicies(index:usize) -> Vec<usize> {
     let mut adjacent = Vec::new();
-    if (index==1){
+    if index==1{
         return adjacent
     }
-    if (index<=9){
+    if index<=9{
         adjacent.push(1);
         return adjacent;
     }
@@ -140,20 +140,15 @@ fn is_corner(index:usize) -> bool {
 }
 
 
-fn get_stored_value_in_slot(index: usize, log: bool) -> usize{
-    if (index==1){
+fn get_stored_value_in_slot(index: usize) -> usize{
+    if index==1{
         return 1;
     }
     let slots = get_same_ring_adjacent_indicies(index);
-    let values = slots.iter().map(|x| get_stored_value_in_slot(*x, false)).collect::<Vec<usize>>();
+    let values = slots.iter().map(|x| get_stored_value_in_slot(*x)).collect::<Vec<usize>>();
     let slots2 = get_lower_ring_adjacent_indicies(index);
-    let values2 = slots2.iter().map(|x| get_stored_value_in_slot(*x, false)).collect::<Vec<usize>>();
+    let values2 = slots2.iter().map(|x| get_stored_value_in_slot(*x)).collect::<Vec<usize>>();
     let sum = values.iter().sum::<usize>() + values2.iter().sum::<usize>();
-    if (log){
-        println!("same ring slots {:?}",slots);
-        println!("lower ring slots {:?}",slots2);
-        println!("sum {:?}",sum);
-    }
     return sum;
 
 }
