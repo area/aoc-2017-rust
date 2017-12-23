@@ -9,11 +9,8 @@ fn main() {
     let mut input = String::new();
     let _ = f.read_to_string(&mut input);
     let starting_input = input.trim().to_string();
-    let mut grid: HashMap<String, usize> = HashMap::new();
-    // 0 - clean
-    // 1 - weakened
-    // 2 - infected
-    // 3 - flagged
+    let mut grid: HashMap<String, bool> = HashMap::new();
+
     let starting_rows = starting_input.split("\n").collect::<Vec<_>>();
     // println!("{:?}", starting_rows);
     let starting_size: isize = starting_rows.len() as isize;
@@ -24,7 +21,7 @@ fn main() {
             let character = row.chars().collect::<Vec<char>>()[x as usize];
             if character == '#'{
                 let key = format!("{},{}",x-(starting_size-1)/2 , y-(starting_size-1)/2);
-                grid.insert(key, 2);
+                grid.insert(key, true);
             }
         }
     }
@@ -33,20 +30,16 @@ fn main() {
     let mut position = (0,0);
     let mut direction = (0,1);
     let mut infect_count = 0;
-    for _i in 0..10000000{
+    for _i in 0..10000{
         // println!("{}", node_infected(&grid, position));
-        if node_state(&grid, position)==0{
+        if !node_infected(&grid, position){
             direction = turn_left(&direction);
             //We are about to infect, so increase counter
-        }else if node_state(&grid, position)==1{
             infect_count+=1;
-        }else if node_state(&grid, position)==2{
-            direction = turn_right(&direction);
-        }else if node_state(&grid, position)==3{
-            direction = turn_right(&direction);
+        }else{
             direction = turn_right(&direction);
         }
-        increment_node_state(&mut grid, position);
+        toggle_node(&mut grid, position);
         position.0 += direction.0;
         position.1 += direction.1;
         // println!("{:?}", grid);
@@ -86,21 +79,21 @@ fn turn_right(direction: &(isize, isize)) -> (isize, isize){
     }
 }
 
-fn node_state(grid: &HashMap<String, usize>, coord: (isize, isize)) -> usize {
+fn node_infected(grid: &HashMap<String, bool>, coord: (isize, isize)) -> bool {
     let key = format!("{},{}",coord.0, coord.1);
     // println!("key looking up: {}", key);
     if !grid.contains_key(&key){
-        return 0;
+        return false;
     }
     // println!("{}", grid.get(&key).unwrap());
     *grid.get(&key).unwrap()
 }
 
-fn increment_node_state(grid: &mut HashMap<String, usize>, coord: (isize, isize)) {
+fn toggle_node(grid: &mut HashMap<String, bool>, coord: (isize, isize)) {
     let key = format!("{},{}",coord.0, coord.1);
     if !grid.contains_key(&key){
-        grid.insert(key, 1);
+        grid.insert(key, true);
     }else{
-        *grid.get_mut(&key).unwrap() = (node_state(grid, coord) +1)%4;
+        *grid.get_mut(&key).unwrap() = !node_infected(grid, coord);
     }
 }
